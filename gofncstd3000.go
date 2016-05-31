@@ -11,6 +11,7 @@ import (
 
 	"crypto/md5"
 
+	"github.com/qiniu/iconv"
 	"github.com/satori/go.uuid"
 
 	"os"
@@ -91,19 +92,18 @@ func RegexpCompile(re string) (*regexp.Regexp, error) {
 	return regexp.Compile(re)
 }
 
-func StrReplaceRegexp(text string, regx_from string, to string) (string, error) {
-	reg, err := regexp.Compile(regx_from)
+func StrRegexpMatch(re, s string) bool {
+	r, err := regexp.Compile(re)
 	if err != nil {
-		return text, err
+		//printerr("RegexpMatch Compile error", err)
+		log.Panicln("RegexpMatch Compile("+re+") error", err)
 	}
-	text = reg.ReplaceAllString(text, to)
-	return text, nil
+	return r.MatchString(s)
 }
-
-func StrReplaceRegexp2(text string, regx_from string, to string) string {
+func StrRegexpReplace(text string, regx_from string, to string) string {
 	reg, err := regexp.Compile(regx_from)
 	if err != nil {
-		return text
+		log.Panicln("StrRegexpReplace Compile("+regx_from+") error", err)
 	}
 	text = reg.ReplaceAllString(text, to)
 	return text
@@ -118,6 +118,10 @@ func StrToInt(s string) (int, error) {
 
 func StrPos(s, substr string) int {
 	return strings.Index(s, substr)
+}
+
+func StrTrim(s string) string {
+	return strings.Trim(s, "\r\n\t ")
 }
 
 //JSON
@@ -142,7 +146,7 @@ func FromJson(data []byte) (map[string]interface{}, error) {
 
 //------------------------------------------------------------------------------
 //функции для работы с файлами
-func ReadFile(file string) ([]byte, error) {
+func FileRead(file string) ([]byte, error) {
 	d, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -150,7 +154,7 @@ func ReadFile(file string) ([]byte, error) {
 	return d, nil
 }
 
-func ReadFileStr(file string) (string, error) {
+func FileReadStr(file string) (string, error) {
 	d, err := ioutil.ReadFile(file)
 	if err != nil {
 		return "", err
@@ -158,21 +162,38 @@ func ReadFileStr(file string) (string, error) {
 	return string(d), nil
 }
 
-func WriteFile(file string, data []byte) error {
+func FileWrite(file string, data []byte) error {
 	err := ioutil.WriteFile(file, data, 0644)
 	return err
 }
 
-func WriteFileStr(file string, data string) error {
+func FileWriteStr(file string, data string) error {
 	err := ioutil.WriteFile(file, []byte(data), 0644)
 	return err
 }
 
-func RemoveFile(file string) error {
+func FileAppendStr(filename string, data string) error {
+	f, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		log.Panicln("FileAppendStr OpenFile error", err)
+		//return err
+	}
+
+	defer f.Close()
+
+	if _, err = f.WriteString(data); err != nil {
+		log.Panicln("FileAppendStr WriteString error", err)
+		//return err
+	}
+	f.Sync()
+	return nil
+}
+
+func FileRemove(file string) error {
 	return os.Remove(file)
 }
 
-func Rename(src, dst string) error {
+func FileRename(src, dst string) error {
 	return os.Rename(src, dst)
 }
 
@@ -188,11 +209,11 @@ func MkdirAll(path string) error {
 }
 
 func CopyFile2(src, dst string) error {
-	d, err := ReadFile(src)
+	d, err := FileRead(src)
 	if err != nil {
 		return err
 	}
-	err = WriteFile(dst, d)
+	err = FileWrite(dst, d)
 	return err
 }
 
@@ -201,7 +222,7 @@ func CopyFile2(src, dst string) error {
 // CopyFile copies a file from src to dst. If src and dst files exist, and are
 // the same, then return success. Otherise, attempt to create a hard link
 // between the two files. If that fail, copy the file contents from src to dst.
-func CopyFile(src, dst string) (err error) {
+func FileCopy(src, dst string) (err error) {
 	sfi, err := os.Stat(src)
 	if err != nil {
 		return
@@ -270,7 +291,7 @@ func AppPath() (string, error) {
 }
 
 //список файлов в каталоге path
-func ReadDir(path string) ([]os.FileInfo, error) {
+func DirRead(path string) ([]os.FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
 	if err != nil {
 		return nil, err
@@ -280,12 +301,25 @@ func ReadDir(path string) ([]os.FileInfo, error) {
 
 //------------------------------------------------------------------------------
 //crypto
-func Uuid() string {
+func StrUuid() string {
 	return fmt.Sprintf("%s", uuid.NewV4())
 }
 
-func Md5(text []byte) string {
+func StrMd5(text []byte) string {
 	d := md5.Sum(text)
 	s := fmt.Sprintf("%x", d)
 	return s
+}
+
+//------------------------------------------------------------------------------
+func StrTr(s string, from string, to string) string {
+	cd, err := iconv.Open(to, from)
+	if err != nil {
+		ret := "ERROR gofncstd3000.tr(): iconv.Open(" + to + "," + from + ") failed!"
+		return ret
+	}
+	defer cd.Close()
+
+	ret := cd.ConvString(s)
+	return ret
 }

@@ -23,10 +23,11 @@ CD "%this_file_path%\.."
 
 @SET GIT_PATH=d:\program\git
 @SET PYTHON_PATH=d:\program\Python26
+@SET MINGW_PATH=c:\MINGW
 
 
 @SET PATH=%PATH%;%PYTHON_PATH%;%GOROOT%;%GOROOT%\bin;%GIT_PATH%;%GIT_PATH%\bin;%GOPATH%
-
+@SET PATH=%PATH%;%MINGW_PATH%;%MINGW_PATH%\bin
 
 ::@ECHO %PATH%
 :: ===========================================================================

@@ -8,6 +8,7 @@
 
 @echo ==== start ===========================================================
 go get "github.com/satori/go.uuid"
+go get "github.com/qiniu/iconv"
 go install
 ::go help gopath
 @echo ==== end =============================================================
