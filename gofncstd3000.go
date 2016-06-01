@@ -315,7 +315,8 @@ func StrMd5(text []byte) string {
 func StrTr(s string, from string, to string) string {
 	cd, err := iconv.Open(to, from)
 	if err != nil {
-		ret := "ERROR gofncstd3000.tr(): iconv.Open(" + to + "," + from + ") failed!"
+		ret := "ERROR StrTr: iconv.Open(" + to + "," + from + ") failed!"
+		log.Panicln(ret, err)
 		return ret
 	}
 	defer cd.Close()
