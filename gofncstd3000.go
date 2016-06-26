@@ -12,7 +12,7 @@ import (
 	"crypto/md5"
 
 	"github.com/qiniu/iconv"
-	"github.com/satori/go.uuid"
+	uuid "github.com/satori/go.uuid"
 
 	"os"
 
@@ -72,6 +72,12 @@ func LogreqF(name string, f func(http.ResponseWriter, *http.Request)) func(http.
 func CurTimeStr() string {
 	t := time.Now()
 	p := fmt.Sprintf("%s", strings.Replace(t.Format(time.RFC3339)[0:19], "T", " ", 1))
+	return p
+}
+
+func CurTimeStrRFC3339() string {
+	t := time.Now()
+	p := t.Format(time.RFC3339)[0:19]
 	return p
 }
 
