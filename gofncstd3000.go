@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"crypto/md5"
+	crc32 "hash/crc32"
 
 	"github.com/qiniu/iconv"
 	uuid "github.com/satori/go.uuid"
@@ -81,6 +82,7 @@ func CurTimeStrRFC3339() string {
 	return p
 }
 
+//возвращает 20160926-095323
 func CurTimeStrShort() string {
 	//2016-04-02T18:21:09+03:00
 	t := time.Now()
@@ -138,6 +140,14 @@ func ToJson(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return j, nil
+}
+
+func ToJsonStr(v interface{}) string {
+	j, err := json.Marshal(v)
+	if err != nil {
+		return ErrStr(err)
+	}
+	return string(j)
 }
 
 //преобразует из json строки в map[string]interface{}
@@ -296,6 +306,15 @@ func AppPath() (string, error) {
 	return dir, err
 }
 
+func AppPath2() string {
+	s, err := AppPath()
+	if err != nil {
+		s = "AppPath() Error"
+	}
+	s = strings.Replace(s, "\\", "/", -1)
+	return s
+}
+
 //список файлов в каталоге path
 func DirRead(path string) ([]os.FileInfo, error) {
 	files, err := ioutil.ReadDir(path)
@@ -314,6 +333,15 @@ func StrUuid() string {
 func StrMd5(text []byte) string {
 	d := md5.Sum(text)
 	s := fmt.Sprintf("%x", d)
+	return s
+}
+
+func StrCrc32(text []byte) string {
+	h := crc32.NewIEEE()
+	h.Write(text)
+	v := h.Sum32()
+	s := strconv.FormatUint(uint64(v), 32)
+	//s := fmt.Sprintf("%d", v)
 	return s
 }
 
