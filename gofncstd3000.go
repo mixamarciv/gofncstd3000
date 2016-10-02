@@ -159,6 +159,14 @@ func FromJson(data []byte) (map[string]interface{}, error) {
 	}
 	return d, nil
 }
+func FromJsonStr(data []byte) map[string]interface{} {
+	var d map[string]interface{}
+	err := json.Unmarshal(data, &d)
+	if err != nil {
+		return map[string]interface{}{"error": ErrStr(err)}
+	}
+	return d
+}
 
 //------------------------------------------------------------------------------
 //функции для работы с файлами
