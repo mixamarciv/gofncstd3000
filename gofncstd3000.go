@@ -17,11 +17,11 @@ import (
 
 	"os"
 
-	"encoding/json"
 	"io"
 	"io/ioutil"
-	"path"
 	"path/filepath"
+
+	"encoding/json"
 	"runtime/debug"
 )
 
@@ -155,7 +155,7 @@ func FromJson(data []byte) (map[string]interface{}, error) {
 	var d map[string]interface{}
 	err := json.Unmarshal(data, &d)
 	if err != nil {
-		return nil, err
+		return map[string]interface{}{"error": ErrStr(err), "data": string(data)}, err
 	}
 	return d, nil
 }
@@ -163,7 +163,7 @@ func FromJsonStr(data []byte) map[string]interface{} {
 	var d map[string]interface{}
 	err := json.Unmarshal(data, &d)
 	if err != nil {
-		return map[string]interface{}{"error": ErrStr(err), "textforjson": string(data)}
+		return map[string]interface{}{"error": ErrStr(err), "data": string(data)}
 	}
 	return d
 }
@@ -228,18 +228,11 @@ func FileExists(path string) bool {
 	return false
 }
 
-//переводит путь в нормальный путь с которым смогут работать функции из path
-func PathClean(spath string) string {
-	spath = strings.Replace(spath, "\\", "/", -1)
-	spath = path.Clean(spath)
-	return spath
-}
-
 func MkdirAll(path string) error {
 	return os.MkdirAll(path, 0777)
 }
 
-func FileCopy2(src, dst string) error {
+func CopyFile2(src, dst string) error {
 	d, err := FileRead(src)
 	if err != nil {
 		return err
@@ -249,7 +242,7 @@ func FileCopy2(src, dst string) error {
 }
 
 //эта штуковина не копирует файл а создает на него ссылку или что то типа того
-//и при изменении src меняется и dst!
+//при изменении src меняется и dst!
 // CopyFile copies a file from src to dst. If src and dst files exist, and are
 // the same, then return success. Otherise, attempt to create a hard link
 // between the two files. If that fail, copy the file contents from src to dst.
