@@ -12,8 +12,9 @@ import (
 	"crypto/md5"
 	crc32 "hash/crc32"
 
-	"github.com/qiniu/iconv"
+	//"github.com/qiniu/iconv"
 	uuid "github.com/satori/go.uuid"
+	iconv "gopkg.in/iconv.v1"
 
 	"os"
 
@@ -335,7 +336,8 @@ func DirRead(path string) ([]os.FileInfo, error) {
 //------------------------------------------------------------------------------
 //crypto
 func StrUuid() string {
-	return fmt.Sprintf("%s", uuid.NewV4())
+	u1 := uuid.Must(uuid.NewV4())
+	return fmt.Sprintf("%s", u1)
 }
 
 func StrMd5(text []byte) string {
