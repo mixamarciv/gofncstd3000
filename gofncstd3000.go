@@ -12,9 +12,9 @@ import (
 	"crypto/md5"
 	crc32 "hash/crc32"
 
-	//"github.com/qiniu/iconv"
+	"github.com/qiniu/iconv"
 	uuid "github.com/satori/go.uuid"
-	iconv "gopkg.in/iconv.v1"
+	//iconv "gopkg.in/iconv.v1"
 
 	"os"
 
